@@ -3,6 +3,11 @@ const modulos = require("./modulos");
 
 const app = express();
 
-let port = 3000;
 
-app.listen();
+app.get("/",(req,res)=>{
+    res.send("Hola Express");
+})
+
+
+let PORT = 3000;
+app.listen(PORT, () => console.log(`http://localhost:${PORT}`));

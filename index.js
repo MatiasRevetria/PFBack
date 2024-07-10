@@ -12,3 +12,5 @@ const server = http.createServer((req,res)=>{
 const PORT = 3000;
 
 server.listen(PORT,()=>console.log(`http://localhost:${PORT}`));
+
+//Ejemplo de servidor con node puro

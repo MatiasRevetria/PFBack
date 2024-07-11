@@ -4,6 +4,9 @@ const productosRouter = require('./routes/productos.router');//*de esta forma
 
 const app = express();
 
+//middleware para json
+app.use(express.json());
+
 //middleware para archivos estaticos y publicos
 app.use(express.static(path.join(__dirname,"public")));
 

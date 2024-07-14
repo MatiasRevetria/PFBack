@@ -1,5 +1,6 @@
-const express = require('express');
 const db = require('../db/db');
+const fs = require('fs');
+const path = require('path');
 
 const index =  (req,res) => {
     const sql = 'SELECT * FROM productos'
@@ -33,32 +34,48 @@ const individual = (req,res) => {
 
 const agregar = (req,res) => {
     const {nombre, precio, stock, categoria_id, fecha} = req.body;
-    const sql = 'INSERT INTO productos (nombre, precio, stock, categoria_id, fecha) VALUES (?,?,?,?,?)';
+    const { filename } = req.file;
+    const sql = 'INSERT INTO productos (nombre, precio, stock, categoria_id, fecha, imagen) VALUES (?,?,?,?,?,?)';
 
-    db.query(sql,[nombre,precio,stock,categoria_id,fecha],(error,result) => {
+    db.query(sql,[nombre,precio,stock,categoria_id,fecha, filename],(error,result) => {
         if(error){
             console.log(error);
+            fs.unlinkSync(path.join(__dirname,'../public/uploads'));
             return res.status(501).json({ error:'Intente mas tarde'});
         };
-        const productId = result.insertId;
-        res.json({...req.body,productId});
+        res.json({...req.body,productId: result.insertId});
     })
 }
 
 const modificar = (req,res) => {
+
+    //hacer una query para buscar el nombre de la imagen anterior en caso de querer modificarla subiendo una nueva.
+
     const { id } = req.params;
     const { precio,stock,fecha } = req.body;
-
     const sql = 'UPDATE productos SET  precio = ?, stock = ?, fecha = ? WHERE id = ?'
+    const valores = [precio,stock,fecha];
 
-    db.query(sql,[precio,stock,fecha,id],(err,result) => {
+    if(req.file){
+        const { filename } = req.file;
+        const sql = 'UPDATE productos SET  precio = ?, stock = ?, fecha = ?, imagen = ?  WHERE id = ?'
+        valores.push(filename);
+    };
+
+    valores.push(id);
+
+    db.query(sql,valores,(err,result) => {
         if(err){
             console.log(err);
             return res.status(500).json({error: "Intente mas tarde"});
         };
 
         if(result.affectedRows === 0){
+            //borrar la imagen subida
             return res.status(404).json({error:"No existe el producto"});
+        }
+        if(result.affectedRows === 1){
+            // fs.unlinkSync; a la imagen anterior
         }
 
         const producto = {...req.body, ...req.params};

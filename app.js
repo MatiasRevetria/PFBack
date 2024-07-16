@@ -16,6 +16,8 @@ app.use(express.static(path.join(__dirname,"public")));
 app.use('/productos',productosRouter);
 // o app.use('/productos', require("./routes/productos.router"));
 
+app.use('/auth',require('./routes/auth.router'));
+
 app.get("/",(req,res)=>{
     res.send("Hola Express");
 });
